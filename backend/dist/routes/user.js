@@ -4,10 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const user_1 = __importDefault(require("./routes/user"));
-const app = (0, express_1.default)();
-const port = process.env.PORT || 3000;
-app.use("/api/v1", user_1.default);
-app.listen(port, () => {
-    console.log(`Server Listning on port ${port} `);
+const router = express_1.default.Router();
+router.get("/user", (req, res) => {
+    res.send("From routes/user.ts");
 });
+exports.default = router;

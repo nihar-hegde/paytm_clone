@@ -1,11 +1,10 @@
 import express from "express";
+import userRouter from "./routes/user";
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-app.get("/", (req, res) => {
-  res.send("Hello world!");
-});
+app.use("/api/v1", userRouter);
 
 app.listen(port, () => {
   console.log(`Server Listning on port ${port} `);
