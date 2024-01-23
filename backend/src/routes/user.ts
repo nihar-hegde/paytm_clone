@@ -2,7 +2,6 @@ import express from "express";
 import { z } from "zod";
 import jwt from "jsonwebtoken";
 import User from "../db/models/user.model";
-
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -13,6 +12,7 @@ if (!jwtSecret) {
 }
 
 const router = express.Router();
+
 const signUpBody = z.object({
   username: z.string().email(),
   firstName: z.string(),
@@ -62,7 +62,7 @@ router.post("/signup", async (req, res) => {
     {
       userId,
     },
-    jwtSecret
+    jwtSecret,
   );
   res.json({
     message: "User created  successfully",

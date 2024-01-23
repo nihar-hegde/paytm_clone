@@ -2,7 +2,7 @@ import express from "express";
 import mainRooter from "./routes/index";
 import cors from "cors";
 import dotenv from "dotenv";
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 
 dotenv.config();
 
@@ -20,8 +20,9 @@ if (!mongoUri) {
 mongoose.Promise = Promise;
 mongoose.connect(mongoUri);
 mongoose.connection.on("error", (error: Error) => console.log(error));
-mongoose.connection.on("success", () =>
-  console.log("Mongodb connected successfully")
+
+mongoose.connection.on("connected", () =>
+  console.log("Mongodb connected successfully"),
 );
 
 app.use("/api/v1", mainRooter);
