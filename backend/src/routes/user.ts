@@ -28,6 +28,7 @@ type userType = {
   password: string;
 };
 
+// NOTE: sign up route.
 router.post("/signup", async (req, res) => {
   const { success } = signUpBody.safeParse(req.body);
   if (!success) {
@@ -69,4 +70,52 @@ router.post("/signup", async (req, res) => {
     token: token,
   });
 });
+
+const signInBody = z.object({
+  username: z.string().email(),
+  password: z.string(),
+});
+
+router.post("/signin", async (req, res) => {
+  const { success } = signInBody.safeParse(req.body);
+  if (!success) {
+    return res.status(411).json({
+      message: "Invalid Inputs!!!",
+    });
+  }
+  const user = await User.findOne({
+    username: req.body.username,
+  });
+
+  if (user === null) {
+    res.status(404).json({
+      message: "User not found!",
+    });
+    return;
+  }
+
+  if (user.password !== req.body.password) {
+    res.status(401).json({
+      message: "Invalid Password",
+    });
+    return;
+  }
+
+  if (user) {
+    const token = jwt.sign(
+      {
+        userId: user._id,
+      },
+      jwtSecret,
+    );
+    res.json({
+      token: token,
+    });
+    return;
+  }
+  res.status(411).json({
+    message: "Error while logging in!",
+  });
+});
+
 export default router;
