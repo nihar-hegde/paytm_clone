@@ -3,6 +3,7 @@ import { z } from "zod";
 import jwt from "jsonwebtoken";
 import User from "../db/models/user.model";
 import dotenv from "dotenv";
+import authMiddleware from "../middleware";
 
 dotenv.config();
 
@@ -63,7 +64,7 @@ router.post("/signup", async (req, res) => {
     {
       userId,
     },
-    jwtSecret,
+    jwtSecret
   );
   res.json({
     message: "User created  successfully",
@@ -71,6 +72,7 @@ router.post("/signup", async (req, res) => {
   });
 });
 
+// NOTE: Sign in route;
 const signInBody = z.object({
   username: z.string().email(),
   password: z.string(),
@@ -106,7 +108,7 @@ router.post("/signin", async (req, res) => {
       {
         userId: user._id,
       },
-      jwtSecret,
+      jwtSecret
     );
     res.json({
       token: token,
@@ -115,6 +117,58 @@ router.post("/signin", async (req, res) => {
   }
   res.status(411).json({
     message: "Error while logging in!",
+  });
+});
+
+const userBody = z.object({
+  password: z.string().optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+});
+
+router.put(
+  "/update",
+  authMiddleware,
+  async (req: express.Request, res: express.Response) => {
+    const { success } = userBody.safeParse(req.body);
+    if (!success) {
+      res.status(411).json({
+        message: "Invalid Inputs!!",
+      });
+    }
+    await User.findByIdAndUpdate(req.body._id, req.body);
+
+    res.json({
+      message: "User Updated Successfully",
+    });
+  }
+);
+
+router.get("/bulk", async (req, res) => {
+  const filter = req.query.filter || "";
+
+  const users = await User.find({
+    $or: [
+      {
+        firstName: {
+          $regex: filter,
+        },
+      },
+      {
+        lastName: {
+          $regex: filter,
+        },
+      },
+    ],
+  });
+
+  res.json({
+    user: users.map((user) => ({
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      _id: user._id,
+    })),
   });
 });
 
