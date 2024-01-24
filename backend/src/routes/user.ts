@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import User from "../db/models/user.model";
 import dotenv from "dotenv";
 import authMiddleware from "../middleware";
+import Account from "../db/models/account.model";
 
 dotenv.config();
 
@@ -58,13 +59,19 @@ router.post("/signup", async (req, res) => {
 
   const userId = user._id;
 
+  // NOTE: create an account for that user
+  await Account.create({
+    userId,
+    balance: 1 + Math.random() * 10000,
+  });
+
   // NOTE: use the id and sign the jwt secreet
 
   const token = jwt.sign(
     {
       userId,
     },
-    jwtSecret
+    jwtSecret,
   );
   res.json({
     message: "User created  successfully",
@@ -108,7 +115,7 @@ router.post("/signin", async (req, res) => {
       {
         userId: user._id,
       },
-      jwtSecret
+      jwtSecret,
     );
     res.json({
       token: token,
@@ -141,7 +148,7 @@ router.put(
     res.json({
       message: "User Updated Successfully",
     });
-  }
+  },
 );
 
 router.get("/bulk", async (req, res) => {
