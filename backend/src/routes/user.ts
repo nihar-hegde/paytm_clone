@@ -1,11 +1,12 @@
 import express from "express";
-import { z } from "zod";
-import jwt from "jsonwebtoken";
-import User from "../db/models/user.model";
 import dotenv from "dotenv";
 import authMiddleware from "../middleware";
-import Account from "../db/models/account.model";
-import { getAllUser, signUpUser } from "../controllers/user";
+import {
+  getAllUser,
+  signInUser,
+  signUpUser,
+  updateUser,
+} from "../controllers/user";
 
 dotenv.config();
 
@@ -19,6 +20,12 @@ const router = express.Router();
 // NOTE: sign up route.
 
 router.post("/signup", signUpUser);
+router.post("/signin", signInUser);
+router.put("/update", authMiddleware, updateUser);
+router.get("/bulk", getAllUser);
+
+export default router;
+
 // router.post("/signup", async (req, res) => {
 //   const { success } = signUpBody.safeParse(req.body);
 //   if (!success) {
@@ -68,78 +75,67 @@ router.post("/signup", signUpUser);
 // });
 
 // NOTE: Sign in route;
-const signInBody = z.object({
-  username: z.string().email(),
-  password: z.string(),
-});
 
-router.post("/signin", async (req, res) => {
-  const { success } = signInBody.safeParse(req.body);
-  if (!success) {
-    return res.status(411).json({
-      message: "Invalid Inputs!!!",
-    });
-  }
-  const user = await User.findOne({
-    username: req.body.username,
-  });
+// router.post("/signin", async (req, res) => {
+//   const { success } = signInBody.safeParse(req.body);
+//   if (!success) {
+//     return res.status(411).json({
+//       message: "Invalid Inputs!!!",
+//     });
+//   }
+//   const user = await User.findOne({
+//     username: req.body.username,
+//   });
+//
+//   if (user === null) {
+//     res.status(404).json({
+//       message: "User not found!",
+//     });
+//     return;
+//   }
+//
+//   if (user.password !== req.body.password) {
+//     res.status(401).json({
+//       message: "Invalid Password",
+//     });
+//     return;
+//   }
+//
+//   if (user) {
+//     const token = jwt.sign(
+//       {
+//         userId: user._id,
+//       },
+//       jwtSecret,
+//     );
+//     res.json({
+//       token: token,
+//     });
+//     return;
+//   }
+//   res.status(411).json({
+//     message: "Error while logging in!",
+//   });
+// });
 
-  if (user === null) {
-    res.status(404).json({
-      message: "User not found!",
-    });
-    return;
-  }
-
-  if (user.password !== req.body.password) {
-    res.status(401).json({
-      message: "Invalid Password",
-    });
-    return;
-  }
-
-  if (user) {
-    const token = jwt.sign(
-      {
-        userId: user._id,
-      },
-      jwtSecret,
-    );
-    res.json({
-      token: token,
-    });
-    return;
-  }
-  res.status(411).json({
-    message: "Error while logging in!",
-  });
-});
-
-const userBody = z.object({
-  password: z.string().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-});
-
-router.put(
-  "/update",
-  authMiddleware,
-  async (req: express.Request, res: express.Response) => {
-    const { success } = userBody.safeParse(req.body);
-    if (!success) {
-      res.status(411).json({
-        message: "Invalid Inputs!!",
-      });
-    }
-    await User.findByIdAndUpdate(req.body._id, req.body);
-
-    res.json({
-      message: "User Updated Successfully",
-    });
-  },
-);
-
-router.get("/bulk", getAllUser);
+// router.put(
+//   "/update",
+//   authMiddleware,
+//   async (req: express.Request, res: express.Response) => {
+//     const { success } = userBody.safeParse(req.body);
+//     if (!success) {
+//       res.status(411).json({
+//         message: "Invalid Inputs!!",
+//       });
+//     }
+//     await User.findByIdAndUpdate(req.body._id, req.body);
+//
+//     res.json({
+//       message: "User Updated Successfully",
+//     });
+//   },
+// );
+//
 
 // router.get("/bulk", async (req, res) => {
 //   const filter = req.query.filter || "";
@@ -168,5 +164,3 @@ router.get("/bulk", getAllUser);
 //     })),
 //   });
 // });
-
-export default router;
