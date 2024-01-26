@@ -4,6 +4,7 @@ import User from "../db/models/user.model";
 import Account from "../db/models/account.model";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
 
 dotenv.config();
 
@@ -21,7 +22,7 @@ const signUpBody = z.object({
 
 export const signUpUser = async (
   req: express.Request,
-  res: express.Response
+  res: express.Response,
 ) => {
   try {
     const { success } = signUpBody.safeParse(req.body);
@@ -30,6 +31,8 @@ export const signUpUser = async (
         message: "Invalid inputs!!",
       });
     }
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     const exisitingUser = await User.findOne({
       username: req.body.username,
@@ -45,7 +48,7 @@ export const signUpUser = async (
       username: req.body.username,
       firstName: req.body.firstName,
       lastName: req.body.lastName,
-      password: req.body.password,
+      password: hashedPassword,
     });
     // NOTE: get the user will auto add the id and return it in the const user variable use it;
 
@@ -63,7 +66,7 @@ export const signUpUser = async (
       {
         userId,
       },
-      jwtSecret
+      jwtSecret,
     );
     res.json({
       message: "User created  successfully",
@@ -84,7 +87,7 @@ const signInBody = z.object({
 
 export const signInUser = async (
   req: express.Request,
-  res: express.Response
+  res: express.Response,
 ) => {
   try {
     const { success } = signInBody.safeParse(req.body);
@@ -116,7 +119,7 @@ export const signInUser = async (
         {
           userId: user._id,
         },
-        jwtSecret
+        jwtSecret,
       );
       res.json({
         token: token,
@@ -142,7 +145,7 @@ const userBody = z.object({
 
 export const updateUser = async (
   req: express.Request,
-  res: express.Response
+  res: express.Response,
 ) => {
   try {
     const { success } = userBody.safeParse(req.body);
@@ -166,7 +169,7 @@ export const updateUser = async (
 
 export const getAllUser = async (
   req: express.Request,
-  res: express.Response
+  res: express.Response,
 ) => {
   try {
     const filter = req.query.filter || "";
