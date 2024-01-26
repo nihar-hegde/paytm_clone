@@ -25,17 +25,19 @@ export const signUpUser = async (
   res: express.Response,
 ) => {
   try {
-    const { success } = signUpBody.safeParse(req.body);
-    if (!success) {
+    const validateField = signUpBody.safeParse(req.body);
+    if (!validateField.success) {
       return res.status(411).json({
         message: "Invalid inputs!!",
       });
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const { username, password, firstName, lastName } = validateField.data;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const exisitingUser = await User.findOne({
-      username: req.body.username,
+      username: username,
     });
     if (exisitingUser) {
       return res.status(411).json({
@@ -45,9 +47,9 @@ export const signUpUser = async (
     //  NOTE: all have checked if the inputs are correct and if the users already exisits.
     //  NOTE: then create the user.
     const user = await User.create({
-      username: req.body.username,
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
+      username: username,
+      firstName: firstName,
+      lastName: lastName,
       password: hashedPassword,
     });
     // NOTE: get the user will auto add the id and return it in the const user variable use it;
@@ -90,14 +92,15 @@ export const signInUser = async (
   res: express.Response,
 ) => {
   try {
-    const { success } = signInBody.safeParse(req.body);
-    if (!success) {
+    const validateFields = signInBody.safeParse(req.body);
+    if (!validateFields.success) {
       return res.status(411).json({
         message: "Invalid Inputs!!!",
       });
     }
+    const { username, password } = validateFields.data;
     const user = await User.findOne({
-      username: req.body.username,
+      username: username,
     });
 
     if (user === null) {
@@ -107,27 +110,38 @@ export const signInUser = async (
       return;
     }
 
-    if (user.password !== req.body.password) {
-      res.status(401).json({
-        message: "Invalid Password",
-      });
-      return;
-    }
+    // if (user.password !== hashedPassword) {
+    //   res.status(401).json({
+    //     message: "Invalid Password",
+    //   });
+    //   return;
+    // }
 
-    if (user) {
-      const token = jwt.sign(
-        {
-          userId: user._id,
-        },
-        jwtSecret,
-      );
-      res.json({
-        token: token,
-      });
-      return;
-    }
-    res.status(411).json({
-      message: "Error while logging in!",
+    bcrypt.compare(password, user.password, (err, result) => {
+      if (err) {
+        throw err;
+      }
+
+      if (result) {
+        // Passwords match, log the user in
+        if (user) {
+          const token = jwt.sign(
+            {
+              userId: user._id,
+            },
+            jwtSecret,
+          );
+          res.json({
+            token: token,
+          });
+          return;
+        }
+      } else {
+        // Passwords don't match
+        res.status(411).json({
+          message: "Error while logging in!",
+        });
+      }
     });
   } catch (error) {
     console.log(error);
