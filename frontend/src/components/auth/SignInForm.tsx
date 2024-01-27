@@ -16,10 +16,12 @@ import {
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { signIn } from "@/actions/users.actions";
+import { useRouter } from "next/navigation";
 
 const SignInForm = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
@@ -33,7 +35,7 @@ const SignInForm = () => {
     console.log(values);
     try {
       const loginUser = await signIn(values);
-      console.log(loginUser);
+      router.push("/dashboard");
     } catch (error) {
       console.log(error, "from frontend");
     }

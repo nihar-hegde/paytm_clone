@@ -1,6 +1,7 @@
 "use server";
 
 import { SignInSchema, SignUpSchema } from "@/schemas";
+import { cookies } from "next/headers";
 import { z } from "zod";
 export const getAllUsers = async () => {
   try {
@@ -39,8 +40,16 @@ export const signIn = async (data: z.infer<typeof SignInSchema>) => {
       },
       body: JSON.stringify(data),
     });
-    const result = await response.json();
-    console.log(result);
+    if (response.ok) {
+      const data = await response.json();
+      cookies().set("jwtToken", data.token, {
+        path: "/",
+        domain: "localhost",
+        maxAge: 3600, // expire after one hour
+        httpOnly: true,
+        secure: false,
+      });
+    }
   } catch (error) {
     console.log(error);
   }
