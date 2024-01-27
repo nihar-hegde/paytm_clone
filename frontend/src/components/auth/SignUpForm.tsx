@@ -15,6 +15,7 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { signUp } from "@/actions/users.actions";
 
 const SignUpForm = () => {
   const [error, setError] = useState("");
@@ -30,8 +31,15 @@ const SignUpForm = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
+  const onSubmit = async (values: z.infer<typeof SignUpSchema>) => {
     console.log(values);
+    try {
+      const userrs = await signUp(values);
+      console.log(userrs);
+    } catch (error) {
+      console.log(error, "from frontend");
+    }
+
     form.reset();
   };
 
