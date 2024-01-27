@@ -1,7 +1,12 @@
+import SignInForm from "@/components/auth/SignInForm";
 import React from "react";
 
 const SignInPage = () => {
-  return <div>SignInPage</div>;
+  return (
+    <div>
+      <SignInForm />
+    </div>
+  );
 };
 
 export default SignInPage;

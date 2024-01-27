@@ -1,6 +1,6 @@
 "use server";
 
-import { SignUpSchema } from "@/schemas";
+import { SignInSchema, SignUpSchema } from "@/schemas";
 import { z } from "zod";
 export const getAllUsers = async () => {
   try {
@@ -19,6 +19,23 @@ export const signUp = async (data: z.infer<typeof SignUpSchema>) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json", // Set appropriate header
+      },
+      body: JSON.stringify(data),
+    });
+    const result = await response.json();
+    console.log(result);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const signIn = async (data: z.infer<typeof SignInSchema>) => {
+  try {
+    console.log("from signIn server action", data);
+    const response = await fetch("http://localhost:8080/api/v1/user/signin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });

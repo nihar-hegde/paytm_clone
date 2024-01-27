@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import CardWrapper from "../CardWrapper";
 import { useForm } from "react-hook-form";
-import { SignUpSchema } from "@/schemas";
+import { SignInSchema } from "@/schemas";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -15,27 +15,25 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { signUp } from "@/actions/users.actions";
+import { signIn } from "@/actions/users.actions";
 
-const SignUpForm = () => {
+const SignInForm = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const form = useForm<z.infer<typeof SignUpSchema>>({
-    resolver: zodResolver(SignUpSchema),
+  const form = useForm<z.infer<typeof SignInSchema>>({
+    resolver: zodResolver(SignInSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
       username: "",
       password: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof SignUpSchema>) => {
+  const onSubmit = async (values: z.infer<typeof SignInSchema>) => {
     console.log(values);
     try {
-      const userrs = await signUp(values);
-      console.log(userrs);
+      const loginUser = await signIn(values);
+      console.log(loginUser);
     } catch (error) {
       console.log(error, "from frontend");
     }
@@ -45,47 +43,13 @@ const SignUpForm = () => {
 
   return (
     <CardWrapper
-      headerLabel="Create an Account!"
-      backButtonLabel="Already have an Account?"
-      backButtonHref="/auth/sign-in"
+      headerLabel="Welcome Back!!!"
+      backButtonLabel="Don't have an Account?"
+      backButtonHref="/auth/sign-up"
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="firstName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>First Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="John"
-                      disabled={form.formState.isSubmitting}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="lastName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Doe"
-                      disabled={form.formState.isSubmitting}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="username"
@@ -135,4 +99,4 @@ const SignUpForm = () => {
   );
 };
 
-export default SignUpForm;
+export default SignInForm;
