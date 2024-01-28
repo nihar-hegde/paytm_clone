@@ -1,5 +1,4 @@
 import { cookies } from "next/headers";
-import React, { useEffect, useState } from "react";
 
 const DashboardPage = () => {
   const token = cookies().get("jwtToken")?.value;

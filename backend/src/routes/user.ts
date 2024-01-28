@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import authMiddleware from "../middleware";
 import {
+  currentUser,
   getAllUser,
   signInUser,
   signUpUser,
@@ -22,6 +23,7 @@ const router = express.Router();
 router.post("/signup", signUpUser);
 router.post("/signin", signInUser);
 router.put("/update", authMiddleware, updateUser);
+router.get("/currentUser", authMiddleware, currentUser);
 router.get("/bulk", getAllUser);
 
 export default router;

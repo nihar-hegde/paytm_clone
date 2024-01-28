@@ -10,10 +10,10 @@ const Home = async () => {
 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-700 via-gray-900 to-black"
     >
       <Link
-        href={"/auth/sign-up"}
+        href={"/auth/sign-in"}
         className={buttonVariants({ variant: "secondary" })}
       >
-        Sign-Up
+        Sign-In
       </Link>
     </main>
   );

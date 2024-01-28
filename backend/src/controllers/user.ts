@@ -22,7 +22,7 @@ const signUpBody = z.object({
 
 export const signUpUser = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) => {
   try {
     const validateField = signUpBody.safeParse(req.body);
@@ -68,7 +68,7 @@ export const signUpUser = async (
       {
         userId,
       },
-      jwtSecret,
+      jwtSecret
     );
     res.json({
       message: "User created  successfully",
@@ -89,7 +89,7 @@ const signInBody = z.object({
 
 export const signInUser = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) => {
   try {
     const validateFields = signInBody.safeParse(req.body);
@@ -129,7 +129,7 @@ export const signInUser = async (
             {
               userId: user._id,
             },
-            jwtSecret,
+            jwtSecret
           );
           res.json({
             token: token,
@@ -159,7 +159,7 @@ const userBody = z.object({
 
 export const updateUser = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) => {
   try {
     const { success } = userBody.safeParse(req.body);
@@ -181,9 +181,26 @@ export const updateUser = async (
   }
 };
 
+export const currentUser = async (req: any, res: any) => {
+  try {
+    const userId = req.userId;
+    const user = await User.findById({ _id: userId });
+    res.status(200).json({
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      message: error,
+    });
+  }
+};
+
 export const getAllUser = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) => {
   try {
     const filter = req.query.filter || "";
